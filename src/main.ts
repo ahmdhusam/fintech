@@ -4,6 +4,7 @@ import { ConfigService } from '@nestjs/config';
 import helmet from 'helmet';
 import { Logger, ValidationPipe, VersioningType } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import * as compression from 'compression';
 
 async function bootstrap() {
   const logger = new Logger(bootstrap.name);
@@ -19,10 +20,6 @@ async function bootstrap() {
     }),
   );
 
-  // For Headers
-  app.enableCors();
-  app.use(helmet());
-
   // For Versioning
   app.enableVersioning({
     type: VersioningType.URI,
@@ -30,6 +27,13 @@ async function bootstrap() {
   });
   app.setGlobalPrefix('api');
 
+  // For Headers
+  app.enableCors();
+  app.use(helmet());
+
+  app.use(compression());
+
+  // Configure Swagger
   const swaggerConfig = new DocumentBuilder()
     .setTitle('FinTech API')
     .setDescription('A FinTech API')
