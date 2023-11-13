@@ -32,7 +32,7 @@ async function bootstrap() {
 
   const swaggerConfig = new DocumentBuilder()
     .setTitle('FinTech API')
-    .setDescription('An FinTech Api')
+    .setDescription('A FinTech API')
     .setVersion('1')
     .addBearerAuth()
     .build();
