@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { map, Observable } from 'rxjs';
 import { plainToClass } from 'class-transformer';
-import { ClassConstructor } from '../interfaces/serialize.interface';
+import { ClassConstructor } from './serialize.interface';
 
 @Injectable()
 export class SerializeInterceptor implements NestInterceptor {
