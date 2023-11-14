@@ -7,6 +7,8 @@ import {
 import { ConfigService } from '@nestjs/config';
 import { PrismaClient } from '@prisma/client';
 
+export { User, Role as Roles, Contact, ContactType } from '@prisma/client';
+
 @Injectable()
 export class DatabaseService
   extends PrismaClient

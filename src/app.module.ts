@@ -7,6 +7,7 @@ import { envValidation } from './utils/env.validation';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
 import { HealthModule } from './health/health.module';
+import { UsersModule } from './users/users.module';
 import { XSSMiddleware } from './core/xss/xss-sanitizer.middleware';
 
 @Module({
@@ -23,6 +24,7 @@ import { XSSMiddleware } from './core/xss/xss-sanitizer.middleware';
     ]),
     DatabaseModule,
     HealthModule,
+    UsersModule,
   ],
   controllers: [AppController],
   providers: [
