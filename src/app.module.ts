@@ -9,6 +9,9 @@ import { APP_GUARD } from '@nestjs/core';
 import { HealthModule } from './health/health.module';
 import { UsersModule } from './users/users.module';
 import { XSSMiddleware } from './core/xss/xss-sanitizer.middleware';
+import { AuthModule } from './auth/auth.module';
+import { JwtAuthGuard } from './auth/guards';
+import { RolesGuard } from './auth/roles/roles.guard';
 
 @Module({
   imports: [
@@ -25,6 +28,7 @@ import { XSSMiddleware } from './core/xss/xss-sanitizer.middleware';
     DatabaseModule,
     HealthModule,
     UsersModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [
@@ -32,6 +36,14 @@ import { XSSMiddleware } from './core/xss/xss-sanitizer.middleware';
     {
       provide: APP_GUARD,
       useClass: ThrottlerGuard,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: JwtAuthGuard,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: RolesGuard,
     },
   ],
 })

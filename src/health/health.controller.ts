@@ -5,8 +5,10 @@ import {
   MemoryHealthIndicator,
   PrismaHealthIndicator,
 } from '@nestjs/terminus';
-import { DatabaseService } from 'src/database/database.service';
+import { DatabaseService, Roles } from '../database/database.service';
+import { UseRole } from '../auth/roles/role.decorator';
 
+@UseRole(Roles.ADMIN)
 @Controller('health')
 export class HealthController {
   constructor(
@@ -16,7 +18,6 @@ export class HealthController {
     private readonly DBContext: DatabaseService,
   ) {}
 
-  // TODO: Restrict to Admin
   @Get()
   @HealthCheck()
   async check() {
