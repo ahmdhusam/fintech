@@ -14,7 +14,7 @@ export class UsersService {
     return await this.userRepo.create(userData);
   }
 
-  async get(
+  async getOneBy(
     where: Partial<Pick<User, 'id' | 'email' | 'username'>>,
   ): Promise<User> {
     return await this.userRepo.getOneBy(where);
@@ -26,5 +26,12 @@ export class UsersService {
 
   async delete(userId: number): Promise<User> {
     return await this.userRepo.deleteOneById(userId);
+  }
+
+  async isValidPassword(
+    currentHash: string,
+    password: string,
+  ): Promise<boolean> {
+    return await this.userRepo.isValidPassword(currentHash, password);
   }
 }

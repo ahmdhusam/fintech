@@ -1,6 +1,6 @@
 import { Expose } from 'class-transformer';
-import { Roles } from 'src/auth/roles/roles.enum';
-import { User } from 'src/database/database.service';
+import { Roles } from '../../auth/roles/roles.enum';
+import { User } from '../../database/database.service';
 
 export class UsersSerialize implements Omit<User, 'password'> {
   @Expose()

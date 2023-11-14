@@ -1,8 +1,10 @@
 import { Injectable } from '@nestjs/common';
-import { DatabaseService, User } from 'src/database/database.service';
+import { DatabaseService, User } from '../database/database.service';
 import { CreateUserDto } from './dtos/create-user.dto';
 import * as bcrypt from 'bcrypt';
 import { UpdateUserDto } from './dtos/update-user.dto';
+
+export type UserUniqueProp = Partial<Pick<User, 'id' | 'email' | 'username'>>;
 
 @Injectable()
 export class UsersRepository {
@@ -16,15 +18,10 @@ export class UsersRepository {
     });
   }
 
-  async getOneBy(
-    where: Partial<Pick<User, 'id' | 'email' | 'username'>>,
-  ): Promise<User> {
+  async getOneBy(where: UserUniqueProp): Promise<User> {
     return await this.DBContext.user.findUnique({
-      where: {
-        id: where.id,
-        username: where.username,
-        email: where.email,
-      },
+      // @ts-ignore
+      where,
     });
   }
 

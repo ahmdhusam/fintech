@@ -7,7 +7,7 @@ import {
 } from 'class-validator';
 import { User } from '../../database/database.service';
 import { ApiProperty } from '@nestjs/swagger';
-import { Transformer } from 'src/utils/transformer';
+import { Transformer } from '../../utils/transformer';
 
 export class CreateUserDto
   implements Omit<User, 'id' | 'role' | 'createdAt' | 'updatedAt'>
