@@ -14,6 +14,7 @@ import { CurrentUser } from '../users.decorator';
 import { CreateContactDto } from './dtos/create-contact.dto';
 import { Contact, User } from '../../database/database.service';
 import {
+  ApiBearerAuth,
   ApiConflictResponse,
   ApiCreatedResponse,
   ApiForbiddenResponse,
@@ -27,6 +28,7 @@ import { UseSerialize } from 'src/core/serialize/serialize.decorator';
 import { ContactSerialize } from './dtos/contact.serialize';
 
 @ApiTags('Contacts')
+@ApiBearerAuth()
 @UseSerialize(ContactSerialize)
 @Controller('users/contacts')
 export class ContactsController {
