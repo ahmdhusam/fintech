@@ -22,7 +22,7 @@ export class UsersSerialize implements Omit<User, 'password'> {
 
   @ApiResponseProperty()
   @Expose()
-  dateOfBarth: Date;
+  dateOfBirth: Date;
 
   @ApiResponseProperty({ enum: Roles })
   @Expose()

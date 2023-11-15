@@ -16,7 +16,8 @@ model User {
   name        String
   username    String    @unique
   email       String    @unique
-  dateOfBarth DateTime?
+  dateOfBirth DateTime?
+  role        Role      @default(USER)
   password    String
 
   createdAt DateTime @default(now())
@@ -30,13 +31,18 @@ model Contact {
   type        ContactType
   // TODO: MUST TO BE STATIC DATA
   countryCode String
-  number      String
+  number      String      @unique
 
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
 
   User   User @relation(fields: [userId], references: [id], onUpdate: Cascade, onDelete: Cascade)
   userId Int
+}
+
+enum Role {
+  ADMIN
+  USER
 }
 
 enum ContactType {

@@ -36,7 +36,7 @@ export class CreateUserDto
   @ApiProperty()
   @IsDateString()
   @IsOptional()
-  dateOfBarth: Date;
+  dateOfBirth: Date;
 
   @ApiProperty({ minLength: 8, maxLength: 60 })
   @Length(8, 60)
