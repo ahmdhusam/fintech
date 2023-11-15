@@ -14,6 +14,7 @@ import { JwtAuthGuard } from './auth/guards';
 import { RolesGuard } from './auth/roles/roles.guard';
 import { SerializeInterceptor } from './core/serialize/serialize.interceptor';
 import { GlobalSerialize } from './core/dtos/global.serialize';
+import { AccountsModule } from './accounts/accounts.module';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { GlobalSerialize } from './core/dtos/global.serialize';
     HealthModule,
     UsersModule,
     AuthModule,
+    AccountsModule,
   ],
   controllers: [AppController],
   providers: [
