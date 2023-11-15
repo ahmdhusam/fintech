@@ -9,8 +9,6 @@ import { Observable } from 'rxjs';
 import { ROLES_KEY } from './roles.constants';
 import { Roles } from './roles.enum';
 
-const RolesTrie = [Roles.USER, Roles.ADMIN];
-
 @Injectable()
 export class RolesGuard implements CanActivate {
   private readonly logger = new Logger(RolesGuard.name);
@@ -28,7 +26,7 @@ export class RolesGuard implements CanActivate {
     if (!requiredRoles) return true;
 
     const { user } = context.switchToHttp().getRequest();
-    if (!user) return true;
+    if (!user) return false;
 
     return requiredRoles.includes(user.role);
   }

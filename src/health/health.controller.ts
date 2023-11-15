@@ -6,9 +6,12 @@ import {
   PrismaHealthIndicator,
 } from '@nestjs/terminus';
 import { DatabaseService, Roles } from '../database/database.service';
-import { UseRole } from '../auth/roles/role.decorator';
+import { UseRoles } from '../auth/roles/roles.decorator';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
-@UseRole(Roles.ADMIN)
+@ApiTags('health')
+@ApiBearerAuth()
+@UseRoles(Roles.ADMIN)
 @Controller('health')
 export class HealthController {
   constructor(
