@@ -12,7 +12,15 @@ import { UpdateUserDto } from './dtos/update-user.dto';
 import { UsersService } from './users.service';
 import { UseSerialize } from 'src/core/serialize/serialize.decorator';
 import { UsersSerialize } from './dtos';
+import {
+  ApiBearerAuth,
+  ApiConflictResponse,
+  ApiOkResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 
+@ApiBearerAuth()
+@ApiTags('Users')
 @UseSerialize(UsersSerialize)
 @Controller('users')
 export class UsersController {
@@ -20,6 +28,11 @@ export class UsersController {
 
   constructor(private readonly userService: UsersService) {}
 
+  @ApiOkResponse({
+    description: 'The User data updated successfully',
+    type: UsersSerialize,
+  })
+  @ApiConflictResponse({ description: 'username or email in use' })
   @Patch()
   async update(
     @CurrentUser() currentUser: User,
@@ -36,12 +49,13 @@ export class UsersController {
 
       return newData;
     } catch (err) {
-      this.logger.error('update throw: ', err.stack);
       switch (err.code) {
         case 'P2002':
           throw new ConflictException('username or email in use');
-        default:
+        default: {
+          this.logger.error('update throw: ', err.stack);
           throw new BadRequestException();
+        }
       }
     }
   }
