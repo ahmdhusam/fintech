@@ -2,12 +2,12 @@ import { Injectable } from '@nestjs/common';
 import { DatabaseService, User } from '../database/database.service';
 import * as bcrypt from 'bcrypt';
 
-export type CreatePropType = Omit<
+export type CreateUserInput = Omit<
   User,
   'id' | 'createdAt' | 'updatedAt' | 'role'
 >;
-export type UserUniqueProp = Partial<Pick<User, 'id' | 'email' | 'username'>>;
-export type UpdateOneByIdPropType = Partial<
+export type UserUniqueInput = Partial<Pick<User, 'id' | 'email' | 'username'>>;
+export type UpdateOneByIdInput = Partial<
   Omit<User, 'id' | 'createdAt' | 'updatedAt'>
 >;
 
@@ -15,7 +15,7 @@ export type UpdateOneByIdPropType = Partial<
 export class UsersRepository {
   constructor(private readonly DBContext: DatabaseService) {}
 
-  async create(userData: CreatePropType): Promise<User> {
+  async create(userData: CreateUserInput): Promise<User> {
     userData.password = await this.hashPassword(userData.password);
 
     return await this.DBContext.user.create({
@@ -23,14 +23,14 @@ export class UsersRepository {
     });
   }
 
-  async getOneBy(where: UserUniqueProp): Promise<User> {
+  async getOneBy(where: UserUniqueInput): Promise<User> {
     return await this.DBContext.user.findUnique({
       // @ts-ignore
       where,
     });
   }
 
-  async updateOneById(id: number, data: UpdateOneByIdPropType): Promise<User> {
+  async updateOneById(id: number, data: UpdateOneByIdInput): Promise<User> {
     return await this.DBContext.user.update({ where: { id }, data });
   }
 

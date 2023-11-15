@@ -5,14 +5,14 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { ContactsRepository, CreateContactProp } from './contacts.repository';
+import { ContactsRepository, CreateContactInput } from './contacts.repository';
 import { Contact, User } from '../../database/database.service';
 
 @Injectable()
 export class ContactsService {
   constructor(private readonly contactsRepo: ContactsRepository) {}
 
-  async create(user: User, data: CreateContactProp): Promise<Contact> {
+  async create(user: User, data: CreateContactInput): Promise<Contact> {
     return await this.contactsRepo.create(user.id, data).catch((err) => {
       switch (err.code) {
         case 'P2002':
@@ -44,7 +44,7 @@ export class ContactsService {
   async modifyContact(
     user: User,
     contactId: number,
-    data: CreateContactProp,
+    data: CreateContactInput,
   ): Promise<Contact> {
     const contact = await this.contactsRepo.getOneById(contactId);
 

@@ -1,12 +1,11 @@
 import { Injectable, Logger } from '@nestjs/common';
 import {
-  CreatePropType,
-  UpdateOneByIdPropType,
-  UserUniqueProp,
+  CreateUserInput,
+  UpdateOneByIdInput,
+  UserUniqueInput,
   UsersRepository,
 } from './users.repository';
 import { User } from '../database/database.service';
-import { UpdateUserDto } from './dtos/update-user.dto';
 
 @Injectable()
 export class UsersService {
@@ -14,15 +13,15 @@ export class UsersService {
 
   constructor(private readonly userRepo: UsersRepository) {}
 
-  async create(userData: CreatePropType): Promise<User> {
+  async create(userData: CreateUserInput): Promise<User> {
     return await this.userRepo.create(userData);
   }
 
-  async getOneBy(where: UserUniqueProp): Promise<User> {
+  async getOneBy(where: UserUniqueInput): Promise<User> {
     return await this.userRepo.getOneBy(where);
   }
 
-  async update(userId: number, userData: UpdateOneByIdPropType): Promise<User> {
+  async update(userId: number, userData: UpdateOneByIdInput): Promise<User> {
     return await this.userRepo.updateOneById(userId, userData);
   }
 

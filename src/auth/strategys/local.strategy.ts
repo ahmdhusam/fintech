@@ -1,7 +1,7 @@
 import { Strategy } from 'passport-local';
 import { PassportStrategy } from '@nestjs/passport';
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { AuthService, ValidateUserType } from '../auth.service';
+import { AuthService, ValidateUserInput } from '../auth.service';
 import { isEmail } from 'class-validator';
 
 @Injectable()
@@ -11,7 +11,7 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
   }
 
   async validate(usernameOrEmail: string, password: string): Promise<any> {
-    const claims: ValidateUserType = { password };
+    const claims: ValidateUserInput = { password };
 
     if (isEmail(usernameOrEmail)) claims.email = usernameOrEmail;
     else claims.username = usernameOrEmail;
