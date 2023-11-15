@@ -1,7 +1,11 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { UsersRepository } from './users.repository';
+import {
+  CreatePropType,
+  UpdateOneByIdPropType,
+  UserUniqueProp,
+  UsersRepository,
+} from './users.repository';
 import { User } from '../database/database.service';
-import { CreateUserDto } from './dtos/create-user.dto';
 import { UpdateUserDto } from './dtos/update-user.dto';
 
 @Injectable()
@@ -10,17 +14,15 @@ export class UsersService {
 
   constructor(private readonly userRepo: UsersRepository) {}
 
-  async create(userData: CreateUserDto): Promise<User> {
+  async create(userData: CreatePropType): Promise<User> {
     return await this.userRepo.create(userData);
   }
 
-  async getOneBy(
-    where: Partial<Pick<User, 'id' | 'email' | 'username'>>,
-  ): Promise<User> {
+  async getOneBy(where: UserUniqueProp): Promise<User> {
     return await this.userRepo.getOneBy(where);
   }
 
-  async update(userId: number, userData: UpdateUserDto): Promise<User> {
+  async update(userId: number, userData: UpdateOneByIdPropType): Promise<User> {
     return await this.userRepo.updateOneById(userId, userData);
   }
 
@@ -33,5 +35,31 @@ export class UsersService {
     password: string,
   ): Promise<boolean> {
     return await this.userRepo.isValidPassword(currentHash, password);
+  }
+
+  async changePassword(
+    user: User,
+    currentPassword: string,
+    newPassword: string,
+  ): Promise<boolean> {
+    const isMatch = await this.isValidPassword(user.password, currentPassword);
+    if (!isMatch) return false;
+
+    const hashed = await this.userRepo.hashPassword(newPassword);
+
+    await this.update(user.id, { password: hashed });
+
+    return true;
+  }
+
+  async changeEmail(
+    user: User,
+    currentPassword: string,
+    newEmail: string,
+  ): Promise<User> {
+    const isMatch = await this.isValidPassword(user.password, currentPassword);
+    if (!isMatch) return null;
+
+    return await this.update(user.id, { email: newEmail });
   }
 }

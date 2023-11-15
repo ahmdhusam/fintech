@@ -1,17 +1,22 @@
 import { Injectable } from '@nestjs/common';
 import { DatabaseService, User } from '../database/database.service';
-import { CreateUserDto } from './dtos/create-user.dto';
 import * as bcrypt from 'bcrypt';
-import { UpdateUserDto } from './dtos/update-user.dto';
 
+export type CreatePropType = Omit<
+  User,
+  'id' | 'createdAt' | 'updatedAt' | 'role'
+>;
 export type UserUniqueProp = Partial<Pick<User, 'id' | 'email' | 'username'>>;
+export type UpdateOneByIdPropType = Partial<
+  Omit<User, 'id' | 'createdAt' | 'updatedAt'>
+>;
 
 @Injectable()
 export class UsersRepository {
   constructor(private readonly DBContext: DatabaseService) {}
 
-  async create(userData: CreateUserDto): Promise<User> {
-    userData.password = await bcrypt.hash(userData.password, 12);
+  async create(userData: CreatePropType): Promise<User> {
+    userData.password = await this.hashPassword(userData.password);
 
     return await this.DBContext.user.create({
       data: userData,
@@ -25,8 +30,8 @@ export class UsersRepository {
     });
   }
 
-  async updateOneById(id: number, userData: UpdateUserDto): Promise<User> {
-    return await this.DBContext.user.update({ where: { id }, data: userData });
+  async updateOneById(id: number, data: UpdateOneByIdPropType): Promise<User> {
+    return await this.DBContext.user.update({ where: { id }, data });
   }
 
   async deleteOneById(userId: number): Promise<User> {
@@ -43,5 +48,9 @@ export class UsersRepository {
   ): Promise<boolean> {
     const isMatch = await bcrypt.compare(password, currentHash);
     return isMatch;
+  }
+
+  async hashPassword(password: string): Promise<string> {
+    return await bcrypt.hash(password, 12);
   }
 }

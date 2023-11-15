@@ -7,5 +7,5 @@ export class GlobalSerialize {
   message: string;
 
   @Exclude()
-  password: string;
+  password?: never;
 }

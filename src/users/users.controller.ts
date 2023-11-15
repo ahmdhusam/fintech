@@ -3,8 +3,10 @@ import {
   Body,
   ConflictException,
   Controller,
+  ForbiddenException,
   Logger,
   Patch,
+  Put,
 } from '@nestjs/common';
 import { CurrentUser } from './users.decorator';
 import { User } from '../database/database.service';
@@ -15,13 +17,17 @@ import { UsersSerialize } from './dtos';
 import {
   ApiBearerAuth,
   ApiConflictResponse,
+  ApiForbiddenResponse,
   ApiOkResponse,
   ApiTags,
+  ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
+import { GlobalSerialize } from 'src/core/dtos/global.serialize';
+import { ChangePasswordDto } from './dtos/change-password.dto';
+import { ChangeEmailDto } from './dtos/change-email.dto';
 
 @ApiBearerAuth()
 @ApiTags('Users')
-@UseSerialize(UsersSerialize)
 @Controller('users')
 export class UsersController {
   private readonly logger = new Logger(UsersController.name);
@@ -33,6 +39,7 @@ export class UsersController {
     type: UsersSerialize,
   })
   @ApiConflictResponse({ description: 'username in use' })
+  @UseSerialize(UsersSerialize)
   @Patch()
   async update(
     @CurrentUser() currentUser: User,
@@ -58,5 +65,49 @@ export class UsersController {
         }
       }
     }
+  }
+
+  @ApiOkResponse({
+    description: 'The password was changed successfully.',
+    type: GlobalSerialize,
+  })
+  @ApiForbiddenResponse({ description: 'Password does not match.' })
+  @ApiUnauthorizedResponse()
+  @Put('password')
+  async changePassword(
+    @CurrentUser() currentUser: User,
+    @Body() passwords: ChangePasswordDto,
+  ): Promise<GlobalSerialize> {
+    const isChanged = await this.userService.changePassword(
+      currentUser,
+      passwords.password,
+      passwords.newPassword,
+    );
+
+    if (!isChanged) throw new ForbiddenException('Password does not match.');
+
+    return { message: 'The password was changed successfully.' };
+  }
+
+  @ApiOkResponse({
+    description: 'The Email was changed successfully.',
+    type: UsersSerialize,
+  })
+  @ApiForbiddenResponse({ description: 'Password does not match.' })
+  @ApiUnauthorizedResponse()
+  @UseSerialize(UsersSerialize)
+  @Put('email')
+  async changeEmail(
+    @CurrentUser() currentUser: User,
+    @Body() data: ChangeEmailDto,
+  ): Promise<User> {
+    const updatedUser = await this.userService.changeEmail(
+      currentUser,
+      data.password,
+      data.email,
+    );
+    if (!updatedUser) throw new ForbiddenException('Password does not match.');
+
+    return updatedUser;
   }
 }
