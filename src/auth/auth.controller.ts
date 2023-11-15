@@ -17,8 +17,19 @@ import { CreateUserDto } from '../users/dtos';
 import { UsersService } from '../users/users.service';
 import { CurrentUser } from '../users/users.decorator';
 import { User } from '../database/database.service';
+import {
+  ApiBadRequestResponse,
+  ApiBasicAuth,
+  ApiBody,
+  ApiConflictResponse,
+  ApiCreatedResponse,
+  ApiOkResponse,
+  ApiTags,
+} from '@nestjs/swagger';
+import { GlobalSerialize } from 'src/core/dtos/global.serialize';
+import { LocalAuthDto } from './dtos/localAuth.dto';
 
-@UseSerialize(AuthSerialize)
+@ApiTags('Auth')
 @SkipAuth()
 @Controller('auth')
 export class AuthController {
@@ -29,6 +40,8 @@ export class AuthController {
     private readonly usersService: UsersService,
   ) {}
 
+  @ApiCreatedResponse({ type: GlobalSerialize })
+  @ApiConflictResponse({ description: 'username or email in use' })
   @HttpCode(HttpStatus.CREATED)
   @Post('register')
   async register(@Body() createUser: CreateUserDto) {
@@ -46,7 +59,12 @@ export class AuthController {
     }
   }
 
+  @ApiOkResponse({ type: AuthSerialize })
+  @ApiBadRequestResponse()
+  @ApiBody({ type: LocalAuthDto })
+  @ApiBasicAuth()
   @HttpCode(HttpStatus.OK)
+  @UseSerialize(AuthSerialize)
   @UseLocalGaurd()
   @Post('login')
   async login(@CurrentUser() currentUser: User) {

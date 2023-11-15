@@ -32,7 +32,7 @@ export class UsersController {
     description: 'The User data updated successfully',
     type: UsersSerialize,
   })
-  @ApiConflictResponse({ description: 'username or email in use' })
+  @ApiConflictResponse({ description: 'username in use' })
   @Patch()
   async update(
     @CurrentUser() currentUser: User,
@@ -51,7 +51,7 @@ export class UsersController {
     } catch (err) {
       switch (err.code) {
         case 'P2002':
-          throw new ConflictException('username or email in use');
+          throw new ConflictException('username in use');
         default: {
           this.logger.error('update throw: ', err.stack);
           throw new BadRequestException();
