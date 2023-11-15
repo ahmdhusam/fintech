@@ -7,6 +7,7 @@ import {
 import { map, Observable } from 'rxjs';
 import { plainToClass } from 'class-transformer';
 import { ClassConstructor } from './serialize.interface';
+import { GlobalSerialize } from '../dtos/global.serialize';
 
 @Injectable()
 export class SerializeInterceptor implements NestInterceptor {
@@ -16,7 +17,7 @@ export class SerializeInterceptor implements NestInterceptor {
     return next.handle().pipe(
       map((value) =>
         plainToClass(this.Dto, value, {
-          excludeExtraneousValues: true,
+          excludeExtraneousValues: this.Dto !== GlobalSerialize,
           enableImplicitConversion: true,
         }),
       ),

@@ -7,7 +7,6 @@ import {
   HttpStatus,
   Logger,
   Post,
-  Req,
 } from '@nestjs/common';
 
 import { AuthService } from './auth.service';
@@ -16,7 +15,8 @@ import { SkipAuth, UseLocalGaurd } from './guards';
 import { UseSerialize } from '../core/serialize/serialize.decorator';
 import { CreateUserDto } from '../users/dtos';
 import { UsersService } from '../users/users.service';
-import { Request } from 'express';
+import { CurrentUser } from '../users/users.decorator';
+import { User } from '../database/database.service';
 
 @UseSerialize(AuthSerialize)
 @SkipAuth()
@@ -49,8 +49,7 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @UseLocalGaurd()
   @Post('login')
-  async login(@Req() req: any) {
-    console.log('login');
-    return this.authService.makeToken(req.user?.id as number);
+  async login(@CurrentUser() currentUser: User) {
+    return this.authService.makeToken(currentUser.id);
   }
 }
