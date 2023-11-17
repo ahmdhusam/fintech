@@ -1,9 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
-import {
-  DatabaseService,
-  TransactionStatus,
-} from '../database/database.service';
 import { TransactionsService } from 'src/transactions/transactions.service';
 
 @Injectable()
@@ -12,7 +8,7 @@ export class TasksService {
 
   constructor(private readonly transactionsService: TransactionsService) {}
 
-  @Cron(CronExpression.EVERY_10_SECONDS)
+  @Cron(CronExpression.EVERY_12_HOURS)
   async handleCron() {
     const nowInMilli = Date.now();
     const twoDaysInMilli = 2 * 24 * 60 * 60 * 1000;
