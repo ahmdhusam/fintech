@@ -1,6 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import { DatabaseService, Decimal } from 'src/database/database.service';
-import { Account } from '../database/database.service';
+import {
+  DatabaseService,
+  Decimal,
+  Account,
+} from '../database/database.service';
 
 export type GetAccountInput = Partial<Pick<Account, 'id' | 'key' | 'userId'>>;
 export type ModifyAccountInput = Pick<Account, 'balance' | 'isActive'>;

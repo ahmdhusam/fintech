@@ -47,11 +47,13 @@ export class AccountsService {
       throw new NotFoundException(customNotFoundErr ?? 'Account Not Found');
 
     if (!account.isActive)
-      new ForbiddenException(customNotActiveErr ?? 'The account is not active');
+      throw new ForbiddenException(
+        customNotActiveErr ?? 'The account is not active',
+      );
 
     // @ts-ignore
     if (!user.hasAccount(account) && isOwnerCheck)
-      throw new ForbiddenException('Not Allowed');
+      throw new ForbiddenException('You do not have access to this account.');
   }
 
   addToBalance(account: Account, amount: Decimal): Decimal {
@@ -62,7 +64,7 @@ export class AccountsService {
     return account.balance.sub(amount);
   }
 
-  isLessThanBalance(account: Account, amount: Decimal): boolean {
+  isBalanceLessThan(account: Account, amount: Decimal): boolean {
     return account.balance.lt(amount);
   }
 }

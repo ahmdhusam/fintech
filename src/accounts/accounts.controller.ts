@@ -9,9 +9,9 @@ import {
   Query,
 } from '@nestjs/common';
 import { AccountsService } from './accounts.service';
-import { CurrentUser } from 'src/users/users.decorator';
+import { CurrentUser } from '../users/users.decorator';
 import { Account, User } from '../database/database.service';
-import { UseSerialize } from 'src/core/serialize/serialize.decorator';
+import { UseSerialize } from '../core/serialize/serialize.decorator';
 import { AccountsSerialize } from './dtos/accounts.serialize';
 import {
   ApiBearerAuth,

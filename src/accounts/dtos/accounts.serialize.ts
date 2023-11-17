@@ -4,7 +4,7 @@ import { Expose } from 'class-transformer';
 export class AccountsSerialize {
   @ApiResponseProperty()
   @Expose()
-  id: string;
+  id: number;
 
   @ApiResponseProperty()
   @Expose()
@@ -13,6 +13,10 @@ export class AccountsSerialize {
   @ApiResponseProperty()
   @Expose()
   balance: number;
+
+  @ApiResponseProperty()
+  @Expose()
+  key: string;
 
   @ApiResponseProperty()
   @Expose()
