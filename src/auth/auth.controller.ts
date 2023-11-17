@@ -26,7 +26,7 @@ import {
   ApiOkResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { GlobalSerialize } from 'src/core/dtos/global.serialize';
+import { GlobalSerialize } from '../core/dtos/global.serialize';
 import { LocalAuthDto } from './dtos/localAuth.dto';
 
 @ApiTags('Auth')
@@ -49,11 +49,11 @@ export class AuthController {
       await this.usersService.create(createUser);
       return { message: 'success' };
     } catch (err) {
-      this.logger.error('register throw: ', err.stack);
       switch (err.code) {
         case 'P2002':
           throw new ConflictException('username or email in use');
         default:
+          this.logger.error('register throw: ', err.stack);
           throw new BadRequestException();
       }
     }

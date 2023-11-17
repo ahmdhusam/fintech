@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { UsersService } from 'src/users/users.service';
+import { UsersService } from '../users/users.service';
 import { User } from '../database/database.service';
-import { UserUniqueInput } from 'src/users/users.repository';
+import { UserUniqueInput } from '../users/users.repository';
 
 export type ValidateUserInput = Omit<UserUniqueInput, 'id'> &
   Pick<User, 'password'>;
@@ -11,7 +11,7 @@ export type ValidateUserInput = Omit<UserUniqueInput, 'id'> &
 export class AuthService {
   constructor(
     private readonly usersService: UsersService,
-    private readonly JwtService: JwtService,
+    private readonly jwtService: JwtService,
   ) {}
 
   async validateUser({ password, ...rest }: ValidateUserInput) {
@@ -30,7 +30,7 @@ export class AuthService {
   makeToken(id: number) {
     const payload = { sub: id };
     return {
-      access_token: this.JwtService.sign(payload),
+      access_token: this.jwtService.sign(payload),
     };
   }
 }
