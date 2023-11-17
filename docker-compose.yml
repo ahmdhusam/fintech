@@ -1,0 +1,33 @@
+version: '3.7'
+
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: nestjs-app_api
+    restart: always
+    ports:
+      - 3000:3000
+    depends_on:
+      - db
+    networks:
+      - app
+    env_file:
+      - ./.env.example
+
+  db:
+    image: postgres
+    restart: always
+    container_name: pg-db
+    hostname: db
+    environment:
+      POSTGRES_PASSWORD: P@ssw0rd # the username is postgres
+    volumes:
+      - ./databases:/usr/databases
+    networks:
+      - app
+
+
+networks:
+  app:
