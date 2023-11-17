@@ -15,6 +15,9 @@ import { RolesGuard } from './auth/roles/roles.guard';
 import { SerializeInterceptor } from './core/serialize/serialize.interceptor';
 import { GlobalSerialize } from './core/dtos/global.serialize';
 import { AccountsModule } from './accounts/accounts.module';
+import { TransactionsModule } from './transactions/transactions.module';
+import { ScheduleModule } from '@nestjs/schedule';
+import { TasksService } from './tasks/tasks.service';
 
 @Module({
   imports: [
@@ -28,15 +31,18 @@ import { AccountsModule } from './accounts/accounts.module';
         limit: 30,
       },
     ]),
+    ScheduleModule.forRoot(),
     DatabaseModule,
     HealthModule,
     UsersModule,
     AuthModule,
     AccountsModule,
+    TransactionsModule,
   ],
   controllers: [AppController],
   providers: [
     AppService,
+    TasksService,
     {
       provide: APP_GUARD,
       useClass: ThrottlerGuard,

@@ -13,7 +13,11 @@ export {
   Contact,
   ContactType,
   Account,
+  Transaction,
+  TransactionType,
+  TransactionStatus,
 } from '@prisma/client';
+export { Decimal } from '@prisma/client/runtime/library';
 
 @Injectable()
 export class DatabaseService

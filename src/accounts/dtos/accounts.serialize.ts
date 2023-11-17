@@ -1,16 +1,18 @@
-import { Decimal } from '@prisma/client/runtime/library';
-import { Account } from '../../database/database.service';
 import { ApiResponseProperty } from '@nestjs/swagger';
 import { Expose } from 'class-transformer';
 
-export class AccountsSerialize implements Omit<Account, 'id' | 'userId'> {
+export class AccountsSerialize {
+  @ApiResponseProperty()
+  @Expose()
+  id: string;
+
   @ApiResponseProperty()
   @Expose()
   isActive: boolean;
 
   @ApiResponseProperty()
   @Expose()
-  balance: Decimal;
+  balance: number;
 
   @ApiResponseProperty()
   @Expose()

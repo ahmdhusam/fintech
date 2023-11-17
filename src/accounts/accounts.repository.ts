@@ -1,17 +1,17 @@
 import { Injectable } from '@nestjs/common';
-import { DatabaseService } from 'src/database/database.service';
+import { DatabaseService, Decimal } from 'src/database/database.service';
 import { Account } from '../database/database.service';
 
-export type GetAccountInput = Partial<Pick<Account, 'id' | 'userId'>>;
+export type GetAccountInput = Partial<Pick<Account, 'id' | 'key' | 'userId'>>;
 export type ModifyAccountInput = Pick<Account, 'balance' | 'isActive'>;
-
+export type GetUniqueAccountInput = Partial<Pick<Account, 'id' | 'key'>>;
 @Injectable()
 export class AccountsRepository {
   constructor(private readonly DBContext: DatabaseService) {}
 
   async create(userId: number): Promise<Account> {
     return await this.DBContext.account.create({
-      data: { balance: 0, userId },
+      data: { balance: new Decimal(0), userId },
     });
   }
 
@@ -23,6 +23,10 @@ export class AccountsRepository {
 
   async getBy(where: GetAccountInput): Promise<Account[]> {
     return await this.DBContext.account.findMany({ where });
+  }
+
+  async getOneBy({ id, key }: GetUniqueAccountInput): Promise<Account> {
+    return await this.DBContext.account.findUnique({ where: { id, key } });
   }
 
   async deleteOneById(accountId: number): Promise<Account> {
