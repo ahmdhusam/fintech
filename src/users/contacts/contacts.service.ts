@@ -26,7 +26,7 @@ export class ContactsService {
   async getUserContacts(user: User): Promise<Contact[]> {
     const contact = await this.contactsRepo.getBy({ userId: user.id });
 
-    if (!contact) throw new NotFoundException('Contact Not Found');
+    if (!contact) throw new NotFoundException('Contacts Not Found');
 
     return contact;
   }
@@ -34,9 +34,7 @@ export class ContactsService {
   async deleteOne(user: User, contactId: number): Promise<Contact> {
     const contact = await this.contactsRepo.getOneById(contactId);
 
-    if (!contact) throw new NotFoundException('Contact Not Found');
-
-    if (contact.userId !== user.id) throw new ForbiddenException('Not Allowed');
+    this.validate(user, contact);
 
     return await this.contactsRepo.deleteOneById(contactId);
   }
@@ -48,10 +46,14 @@ export class ContactsService {
   ): Promise<Contact> {
     const contact = await this.contactsRepo.getOneById(contactId);
 
+    this.validate(user, contact);
+
+    return await this.contactsRepo.updateOneById(contactId, data);
+  }
+
+  validate(user: User, contact: Contact): void {
     if (!contact) throw new NotFoundException('Contact Not Found');
 
     if (contact.userId !== user.id) throw new ForbiddenException('Not Allowed');
-
-    return await this.contactsRepo.updateOneById(contactId, data);
   }
 }

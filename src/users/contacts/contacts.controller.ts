@@ -24,7 +24,7 @@ import {
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import { ContactsService } from './contacts.service';
-import { UseSerialize } from 'src/core/serialize/serialize.decorator';
+import { UseSerialize } from '../../core/serialize/serialize.decorator';
 import { ContactSerialize } from './dtos/contact.serialize';
 
 @ApiTags('Contacts')
