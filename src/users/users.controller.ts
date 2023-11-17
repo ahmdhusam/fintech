@@ -12,7 +12,7 @@ import { CurrentUser } from './users.decorator';
 import { User } from '../database/database.service';
 import { UpdateUserDto } from './dtos/update-user.dto';
 import { UsersService } from './users.service';
-import { UseSerialize } from 'src/core/serialize/serialize.decorator';
+import { UseSerialize } from '../core/serialize/serialize.decorator';
 import { UsersSerialize } from './dtos';
 import {
   ApiBearerAuth,
@@ -22,7 +22,7 @@ import {
   ApiTags,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
-import { GlobalSerialize } from 'src/core/dtos/global.serialize';
+import { GlobalSerialize } from '../core/dtos/global.serialize';
 import { ChangePasswordDto } from './dtos/change-password.dto';
 import { ChangeEmailDto } from './dtos/change-email.dto';
 

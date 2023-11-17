@@ -1,6 +1,6 @@
 import { ApiProperty, PickType } from '@nestjs/swagger';
 import { CreateUserDto } from './create-user.dto';
-import { Transformer } from 'src/utils/transformer';
+import { Transformer } from '../../utils/transformer';
 import { IsString, Length } from 'class-validator';
 
 export class ChangePasswordDto extends PickType(CreateUserDto, [
