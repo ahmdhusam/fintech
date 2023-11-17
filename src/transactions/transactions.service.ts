@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import {
-  Account,
   DatabaseService,
   Decimal,
   Transaction,
@@ -8,27 +7,21 @@ import {
   TransactionType,
 } from '../database/database.service';
 
-export interface TransferInput {
-  fromAccountId: number;
-  toAccountId: number;
-  fromAccountBalance: Decimal;
-  toAccountBalance: Decimal;
-}
-
 export type GetPendingInput = Partial<Pick<Transaction, 'id' | 'createdAt'>>;
 
 @Injectable()
 export class TransactionsService {
   private readonly isolationLevel = 'Serializable';
-  private readonly TAX = 1.5;
+
+  // TODO: Move it to the env variable file to be dynamic
+  static readonly TAX = 1.5;
 
   constructor(private readonly DBContext: DatabaseService) {}
 
   async createDeposit(
     accountId: number,
-    balance: Decimal,
     amount: Decimal,
-  ): Promise<[Transaction, Account]> {
+  ): Promise<Transaction> {
     const createTransaction = this.DBContext.transaction.create({
       data: {
         amount,
@@ -40,7 +33,7 @@ export class TransactionsService {
 
     const updateAccount = this.DBContext.account.update({
       where: { id: accountId },
-      data: { balance },
+      data: { balance: { increment: amount } },
     });
 
     return await this.DBContext.$transaction(
@@ -48,14 +41,14 @@ export class TransactionsService {
       {
         isolationLevel: this.isolationLevel,
       },
-    );
+    )[0];
   }
 
   async createWithdraw(
     accountId: number,
-    balance: Decimal,
     amount: Decimal,
-  ): Promise<[Transaction, Account]> {
+    grossAmount: Decimal,
+  ): Promise<Transaction> {
     const createTransaction = this.DBContext.transaction.create({
       data: {
         amount,
@@ -67,7 +60,7 @@ export class TransactionsService {
 
     const updateAccount = this.DBContext.account.update({
       where: { id: accountId },
-      data: { balance },
+      data: { balance: { decrement: grossAmount } },
     });
 
     return await this.DBContext.$transaction(
@@ -75,26 +68,28 @@ export class TransactionsService {
       {
         isolationLevel: this.isolationLevel,
       },
-    );
+    )[0];
   }
 
   async createTransfer(
-    accountData: TransferInput,
+    senderId: number,
+    receiverId: number,
     amount: Decimal,
-  ): Promise<[Transaction, Account]> {
+    grossAmount: Decimal,
+  ): Promise<Transaction> {
     const createTransaction = this.DBContext.transaction.create({
       data: {
         amount,
         type: TransactionType.Transfer,
         status: TransactionStatus.Pending,
-        fromAccountId: accountData.fromAccountId,
-        toAccountId: accountData.toAccountId,
+        fromAccountId: senderId,
+        toAccountId: receiverId,
       },
     });
 
     const updateFromAccount = this.DBContext.account.update({
-      where: { id: accountData.fromAccountId },
-      data: { balance: accountData.fromAccountBalance },
+      where: { id: senderId },
+      data: { balance: { decrement: grossAmount } },
     });
 
     return await this.DBContext.$transaction(
@@ -102,7 +97,29 @@ export class TransactionsService {
       {
         isolationLevel: this.isolationLevel,
       },
-    );
+    )[0];
+  }
+
+  async getAll(userId: number): Promise<Transaction[]> {
+    // @ts-ignore
+    return await this.DBContext.transaction.findMany({
+      where: {
+        OR: [{ fromAccountId: userId }, { toAccountId: userId }],
+      },
+      select: {
+        id: true,
+        amount: true,
+        type: true,
+        status: true,
+        createdAt: true,
+        updatedAt: true,
+        toAccount: {
+          select: {
+            key: true,
+          },
+        },
+      },
+    });
   }
 
   async getPending(where: GetPendingInput): Promise<Transaction[]> {
@@ -118,7 +135,7 @@ export class TransactionsService {
     transactionId: number,
     accountId: number,
     amount: Decimal,
-  ): Promise<[Transaction, Account]> {
+  ): Promise<Transaction> {
     const updateTransaction = this.DBContext.transaction.update({
       where: {
         id: transactionId,
@@ -142,14 +159,14 @@ export class TransactionsService {
     return await this.DBContext.$transaction(
       [updateTransaction, updateToAccount],
       { isolationLevel: this.isolationLevel },
-    );
+    )[0];
   }
 
   calcTax(amount: Decimal): Decimal {
-    return new Decimal(amount).sub(this.TAX);
+    return new Decimal(amount).sub(TransactionsService.TAX);
   }
 
   calcGross(amount: Decimal): Decimal {
-    return new Decimal(amount).add(this.TAX);
+    return new Decimal(amount).add(TransactionsService.TAX);
   }
 }

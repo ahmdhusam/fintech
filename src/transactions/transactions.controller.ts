@@ -1,7 +1,9 @@
 import {
   Body,
+  ConflictException,
   Controller,
   ForbiddenException,
+  Get,
   HttpCode,
   HttpStatus,
   Logger,
@@ -13,13 +15,14 @@ import { CurrentUser } from '../users/users.decorator';
 import { AccountsService } from '../accounts/accounts.service';
 import { TransactionDto } from './dtos/transaction-data.dto';
 import { TransferDto } from './dtos/transfer.dto';
-import { UseSerialize } from 'src/core/serialize/serialize.decorator';
+import { UseSerialize } from '../core/serialize/serialize.decorator';
 import { TransactionsSerialize } from './dtos/transactions.serialize';
 import {
   ApiBearerAuth,
   ApiCreatedResponse,
   ApiForbiddenResponse,
   ApiNotFoundResponse,
+  ApiOkResponse,
   ApiTags,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
@@ -36,11 +39,15 @@ export class TransactionsController {
     private readonly accountsService: AccountsService,
   ) {}
 
+  // TODO: Should act like a webhook with payment gateway
   @ApiCreatedResponse({
     description: 'Successfully created a "deposit" transaction',
   })
-  @ApiNotFoundResponse()
-  @ApiForbiddenResponse()
+  @ApiNotFoundResponse({ description: 'Account Not Found' })
+  @ApiForbiddenResponse({ description: 'The account is not active' })
+  @ApiForbiddenResponse({
+    description: 'You do not have access to this account.',
+  })
   @ApiUnauthorizedResponse()
   @HttpCode(HttpStatus.CREATED)
   @Post('deposit')
@@ -52,22 +59,24 @@ export class TransactionsController {
     this.accountsService.validate(currentUser, account);
 
     const netAmount = this.transactionsService.calcTax(data.amount);
-    const newBalance = this.accountsService.addToBalance(account, netAmount);
 
     const result = await this.transactionsService.createDeposit(
       account.id,
-      newBalance,
       netAmount,
     );
 
-    return result[0];
+    return result;
   }
 
+  // TODO: Should act like a webhook with payment gateway
   @ApiCreatedResponse({
     description: 'Successfully created a "withdraw" transaction',
   })
-  @ApiNotFoundResponse()
-  @ApiForbiddenResponse()
+  @ApiNotFoundResponse({ description: 'Account Not Found' })
+  @ApiForbiddenResponse({ description: 'The account is not active' })
+  @ApiForbiddenResponse({
+    description: 'You do not have access to this account.',
+  })
   @ApiUnauthorizedResponse()
   @HttpCode(HttpStatus.CREATED)
   @Post('withdraw')
@@ -79,30 +88,29 @@ export class TransactionsController {
     this.accountsService.validate(currentUser, account);
 
     const grossAmount = this.transactionsService.calcGross(data.amount);
-    if (this.accountsService.isLessThanBalance(account, grossAmount))
+
+    if (this.accountsService.isBalanceLessThan(account, grossAmount))
       throw new ForbiddenException(
         `Your account does not have enough balance (${grossAmount}) for this transaction.`,
       );
 
-    const newBalance = this.accountsService.subtractFromBalance(
-      account,
+    const result = await this.transactionsService.createWithdraw(
+      account.id,
+      data.amount,
       grossAmount,
     );
 
-    const result = await this.transactionsService.createWithdraw(
-      account.id,
-      newBalance,
-      data.amount,
-    );
-
-    return result[0];
+    return result;
   }
 
   @ApiCreatedResponse({
     description: 'Successfully created a "transfer" transaction',
   })
-  @ApiNotFoundResponse()
-  @ApiForbiddenResponse()
+  @ApiNotFoundResponse({ description: 'Account Not Found' })
+  @ApiForbiddenResponse({ description: 'The account is not active' })
+  @ApiForbiddenResponse({
+    description: 'You do not have access to this account.',
+  })
   @ApiUnauthorizedResponse()
   @HttpCode(HttpStatus.CREATED)
   @Post('transfer')
@@ -130,31 +138,32 @@ export class TransactionsController {
       false,
     );
 
+    if (sender.id === receiver.id)
+      throw new ConflictException(
+        'Transferring to the same account is not possible',
+      );
+
     const grossAmount = this.transactionsService.calcGross(data.amount);
-    if (this.accountsService.isLessThanBalance(sender, grossAmount))
+
+    if (this.accountsService.isBalanceLessThan(sender, grossAmount))
       throw new ForbiddenException(
         `Your account does not have enough balance (${grossAmount}) for this transaction.`,
       );
 
-    const senderAccountBalance = this.accountsService.subtractFromBalance(
-      sender,
+    const result = await this.transactionsService.createTransfer(
+      sender.id,
+      receiver.id,
+      data.amount,
       grossAmount,
     );
-    const receiverAccountBalance = this.accountsService.addToBalance(
-      receiver,
-      data.amount,
-    );
 
-    const result = await this.transactionsService.createTransfer(
-      {
-        fromAccountId: sender.id,
-        toAccountId: receiver.id,
-        fromAccountBalance: senderAccountBalance,
-        toAccountBalance: receiverAccountBalance,
-      },
-      data.amount,
-    );
+    return result;
+  }
 
-    return result[0];
+  @ApiOkResponse()
+  @ApiUnauthorizedResponse()
+  @Get()
+  async getAll(@CurrentUser() currentUser: User): Promise<Transaction[]> {
+    return await this.transactionsService.getAll(currentUser.id);
   }
 }
