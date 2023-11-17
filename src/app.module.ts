@@ -1,6 +1,4 @@
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
 import { DatabaseModule } from './database/database.module';
 import { ConfigModule } from '@nestjs/config';
 import { envValidation } from './utils/env.validation';
@@ -39,9 +37,7 @@ import { TasksService } from './tasks/tasks.service';
     AccountsModule,
     TransactionsModule,
   ],
-  controllers: [AppController],
   providers: [
-    AppService,
     TasksService,
     {
       provide: APP_GUARD,
