@@ -32,4 +32,4 @@ services:
 networks:
   app:
 volumes:
-  databases
+  databases:
