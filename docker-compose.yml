@@ -8,7 +8,7 @@ services:
     container_name: nestjs-app_api
     restart: always
     ports:
-      - 3000:3000
+      - 5500:3000
     depends_on:
       - db
     networks:
@@ -24,10 +24,12 @@ services:
     environment:
       POSTGRES_PASSWORD: P@ssw0rd # the username is postgres
     volumes:
-      - ./databases:/usr/databases
+      - databases:/var/lib/postgresql/data
     networks:
       - app
 
 
 networks:
   app:
+volumes:
+  databases

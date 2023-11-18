@@ -20,11 +20,13 @@ WORKDIR /app
 
 ENV NODE_ENV=production
 
-USER node
-
 COPY package*.json yarn* ./
 
 RUN yarn --prod
+
+USER node
+
+COPY prisma ./prisma
 
 COPY --from=Builder /app/dist ./dist
 
