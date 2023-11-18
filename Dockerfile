@@ -24,6 +24,8 @@ COPY package*.json yarn* ./
 
 RUN yarn --prod
 
+RUN yarn prisma:generate
+
 USER node
 
 COPY prisma ./prisma
