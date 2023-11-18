@@ -24,11 +24,12 @@ COPY package*.json yarn* ./
 
 RUN yarn --prod
 
+COPY prisma ./prisma
+
 RUN yarn prisma:generate
 
 USER node
 
-COPY prisma ./prisma
 
 COPY --from=Builder /app/dist ./dist
 
